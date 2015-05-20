@@ -16,12 +16,14 @@ class LocalActor extends Actor with ActorLogging {
     val config = ConfigFactory.load()
     val hostname = config.getString("remote-actor.hostname")
     val port = config.getString("remote-actor.port")
-    val selection = context.actorSelection(s"akka.tcp://remoteSystem@$hostname:$port/user/remoteActor")
+    val selection = s"akka.tcp://remoteSystem@$hostname:$port/user/remoteActor"
+    log.info("Remote actor selection: " + selection)
+    val actor = context.actorSelection(selection)
 
     context.system.scheduler.schedule(0 seconds, 1 second) {
       val random = Random.nextInt();
       log.info("Sending to remote actor: " + random)
-      selection ! random
+      actor ! random
     }(context.dispatcher)
   }
 
