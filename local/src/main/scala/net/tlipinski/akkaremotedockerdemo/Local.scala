@@ -1,6 +1,7 @@
 package net.tlipinski.akkaremotedockerdemo
 
 import akka.actor.{ActorLogging, Props, Actor, ActorSystem}
+import com.typesafe.config.{ConfigFactory, Config}
 import scala.concurrent.duration._
 import scala.util.Random
 
@@ -12,7 +13,10 @@ object Local extends App {
 class LocalActor extends Actor with ActorLogging {
 
   override def preStart = {
-    val selection = context.actorSelection("akka.tcp://remoteSystem@127.0.0.1:2552/user/remoteActor")
+    val config = ConfigFactory.load()
+    val hostname = config.getString("remote-actor.hostname")
+    val port = config.getString("remote-actor.port")
+    val selection = context.actorSelection(s"akka.tcp://remoteSystem@$hostname:$port/user/remoteActor")
 
     context.system.scheduler.schedule(0 seconds, 1 second) {
       val random = Random.nextInt();
